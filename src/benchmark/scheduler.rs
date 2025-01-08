@@ -1,8 +1,10 @@
 use super::benchmark_result::BenchmarkResult;
-use super::executor::{Executor, MockExecutor, RawExecutor, ShellExecutor};
+use super::executor::{self, Executor, MockExecutor, RawExecutor, ShellExecutor};
 use super::{relative_speed, Benchmark};
 use colored::*;
+use flume::bounded;
 use std::cmp::Ordering;
+use std::thread;
 
 use crate::command::{Command, Commands};
 use crate::export::ExportManager;
@@ -45,6 +47,10 @@ impl<'a> Scheduler<'a> {
             .map(|cmd| Command::new(None, cmd));
 
         executor.calibrate()?;
+
+        let mut executor2 = executor.clone();
+
+        let (sender, receiver) = bounded(self.options.jobs);
 
         for (number, cmd) in reference.iter().chain(self.commands.iter()).enumerate() {
             self.results

@@ -199,6 +199,9 @@ pub struct Options {
     /// Number of warmup runs
     pub warmup_count: u64,
 
+    /// Number of simultaneous jobs
+    pub jobs: usize,
+
     /// Minimum benchmarking time
     pub min_benchmarking_time: Time,
 
@@ -247,6 +250,7 @@ impl Default for Options {
         Options {
             run_bounds: RunBounds::default(),
             warmup_count: 0,
+            jobs: 1,
             min_benchmarking_time: Time::new::<second>(3.0),
             command_failure_action: CmdFailureAction::RaiseError,
             reference_command: None,
@@ -306,6 +310,11 @@ impl Options {
             }
             (None, None) => {}
         };
+
+        options.jobs = match param_to_u64("jobs")? {
+            Some(jobs) if jobs >= 1 => jobs,
+            _ => 1,
+        } as usize;
 
         options.setup_command = matches.get_one::<String>("setup").map(String::from);
 

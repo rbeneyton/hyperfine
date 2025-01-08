@@ -73,6 +73,14 @@ fn build_command() -> Command {
                        hyperfine automatically determines the number of runs."),
         )
         .arg(
+            Arg::new("jobs")
+                .long("jobs")
+                .short('j')
+                .action(ArgAction::Set)
+                .value_name("JOBS")
+                .help("Run JOBS instances simultaneously (default: 1)."),
+        )
+        .arg(
             Arg::new("setup")
                 .long("setup")
                 .short('s')
